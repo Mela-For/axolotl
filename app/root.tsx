@@ -1,0 +1,107 @@
+import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
+import {
+	isRouteErrorResponse,
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+} from "react-router";
+import type { Route } from "./+types/root";
+import { ToastProvider } from "./components/ToastProvider";
+
+const theme = createTheme({
+	palette: {
+		primary: {
+			main: "#c45c3a",
+		},
+		background: {
+			default: "#fafaf8",
+		},
+		text: {
+			primary: "#1c1917",
+			secondary: "#57534e",
+		},
+	},
+	typography: {
+		fontFamily: "Inter, sans-serif",
+		h4: { fontWeight: 700, letterSpacing: "-0.02em" },
+		h5: { fontWeight: 700, letterSpacing: "-0.015em" },
+		h6: { fontWeight: 600, letterSpacing: "-0.01em" },
+		subtitle1: { fontWeight: 500, letterSpacing: "0.01em" },
+		subtitle2: { fontWeight: 500, letterSpacing: "0.01em" },
+		overline: { fontWeight: 600, letterSpacing: "0.12em" },
+		button: { letterSpacing: "0.04em" },
+	},
+});
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
+	{
+		rel: "preconnect",
+		href: "https://fonts.gstatic.com",
+		crossOrigin: "anonymous",
+	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+	},
+];
+
+export function Layout({ children }: { children: React.ReactNode }) {
+	return (
+		<html lang="en">
+			<head>
+				<meta charSet="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<Meta />
+				<Links />
+			</head>
+			<body>
+				{children}
+				<ScrollRestoration />
+				<Scripts />
+			</body>
+		</html>
+	);
+}
+
+export default function App() {
+	return (
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<ToastProvider>
+				<Outlet />
+			</ToastProvider>
+		</ThemeProvider>
+	);
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	let message = "Oops!";
+	let details = "An unexpected error occurred.";
+	let stack: string | undefined;
+
+	if (isRouteErrorResponse(error)) {
+		message = error.status === 404 ? "404" : "Error";
+		details =
+			error.status === 404
+				? "The requested page could not be found."
+				: error.statusText || details;
+	} else if (import.meta.env.DEV && error && error instanceof Error) {
+		details = error.message;
+		stack = error.stack;
+	}
+
+	return (
+		<main>
+			<h1>{message}</h1>
+			<p>{details}</p>
+			{stack && (
+				<pre>
+					<code>{stack}</code>
+				</pre>
+			)}
+		</main>
+	);
+}
